@@ -1,23 +1,22 @@
 import pandas as pd
 from datetime import datetime
 
-class Dataframereader:
-    def __init__(self , df):
-        self.df = df.iloc[1000:2000 , :].astype(object)
+DATE_FORMAT = '%y-%m-%d'
 
 
-def from_csv(cls , file_path):
-    file_path = '/home/kote/Downloads/nyc_tlc_yellow_trips_2018_subset_1.csv'
-    df = pd.read_csv(file_path)
-    return cls(df)
+class DataframeReader:
+    def __init__(self, file_path, start_index, number_of_rows):
+        self.df = pd.read_csv(filepath_or_buffer=file_path,
+                              skiprows=start_index, nrows=number_of_rows)
 
+    def transform_date(self, column_name='pickup_datetime'):
+        self.df = self.df[column_name].apply(
+            lambda x: datetime.strptime(x.split('T')[0], DATE_FORMAT).date())
 
-def transformdate(self):
-    self.df = self.df["pickup_datetime"].apply(lambda x: datetime.strptime(x.split('T')[0], '%y-%m-%d').date())
-    self.df = self.df["dropoff_datetime"].apply(lambda x: datetime.strptime(x.split('T')[0], '%y-%m-%d').date())
+    def shrink_df_to_particular_columns(self, columns):
+        self.df = self.df[columns]
 
-def leaving2rows(self):
-    self.df = self.df[['pickup_datetime' , 'dropoff_datetime']]
-
-def is_two_or_more_days_ride(self):
-    self.df['is_two_or_more_days'] = (self.df['pickup_datetime'] != self.df['dropoff_datetime'] , 1 , 0)
+    def is_two_or_more_days_ride(self, new_column_name, date_column1,
+                                 date_column2):
+        self.df[new_column_name] = (
+            self.df[date_column1] != self.df[date_column2], 1, 0)
